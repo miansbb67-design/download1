@@ -93,3 +93,4 @@ class DashboardController
         Response::success(['notifications' => $notifs]);
     }
 }
+

@@ -99,3 +99,4 @@ class StorageManager
         return round($bytes / pow(1024, $i), 2) . ' ' . $units[$i];
     }
 }
+

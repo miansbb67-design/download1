@@ -110,3 +110,149 @@ body.dark-mode .table > :not(caption) > * > * {
   background-color: transparent !important;
   border-color: var(--border-color) !important;
 }
+
+/* ==========================================================================
+   Dark Mode IDM Desktop Interface (Exact Match with Image Dark Aesthetic)
+   ========================================================================== */
+
+body.dark-mode .idm-topbar {
+  background: #111A16 !important;
+  border-color: #213028 !important;
+}
+
+body.dark-mode .idm-brand {
+  color: #EDF5F1 !important;
+}
+
+body.dark-mode .idm-btn-tool {
+  background: #19241F !important;
+  border-color: #26382E !important;
+  color: #D3E5DC !important;
+}
+
+body.dark-mode .idm-btn-tool:hover {
+  background: #23342B !important;
+  border-color: var(--secondary) !important;
+  color: #FFFFFF !important;
+}
+
+body.dark-mode .idm-btn-tool.btn-add-url {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+}
+
+body.dark-mode .idm-sidebar {
+  background: #111A16 !important;
+  border-color: #213028 !important;
+}
+
+body.dark-mode .idm-nav-item {
+  color: #C2D6CD !important;
+}
+
+body.dark-mode .idm-nav-item:hover {
+  background: #19241F !important;
+  color: var(--secondary) !important;
+}
+
+body.dark-mode .idm-nav-item.active {
+  background: rgba(16, 185, 129, 0.18) !important;
+  color: #27C985 !important;
+}
+
+body.dark-mode .idm-counter-pill {
+  background: #19241F !important;
+  color: #8CA397 !important;
+  border-color: #26382E !important;
+}
+
+body.dark-mode .idm-nav-item.active .idm-counter-pill {
+  background: #10B981 !important;
+  color: #FFFFFF !important;
+  border-color: #10B981 !important;
+}
+
+body.dark-mode .idm-workspace {
+  background: #0B100E !important;
+}
+
+body.dark-mode .idm-metric-card {
+  background: #131D18 !important;
+  border-color: #213028 !important;
+}
+
+body.dark-mode .idm-metric-icon-box {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #27C985 !important;
+}
+
+body.dark-mode .idm-metric-info span {
+  color: #EDF5F1 !important;
+}
+
+body.dark-mode .idm-queue-card {
+  background: #131D18 !important;
+  border-color: #213028 !important;
+}
+
+body.dark-mode .idm-queue-header {
+  background: #131D18 !important;
+  border-color: #213028 !important;
+}
+
+body.dark-mode .idm-queue-title {
+  color: #EDF5F1 !important;
+}
+
+body.dark-mode .idm-search-input {
+  background: #0B100E !important;
+  border-color: #26382E !important;
+  color: #EDF5F1 !important;
+}
+
+body.dark-mode .idm-search-input:focus {
+  border-color: #27C985 !important;
+  background: #111A16 !important;
+}
+
+body.dark-mode .idm-table thead th {
+  background: #0F1713 !important;
+  border-color: #213028 !important;
+  color: #8CA397 !important;
+}
+
+body.dark-mode .idm-table tbody td {
+  border-color: #1B2822 !important;
+  color: #EDF5F1 !important;
+}
+
+body.dark-mode .idm-table tbody tr:hover td {
+  background: #18231E !important;
+}
+
+body.dark-mode .idm-file-title {
+  color: #EDF5F1 !important;
+}
+
+body.dark-mode .idm-tbl-progress {
+  background: #213028 !important;
+}
+
+body.dark-mode .idm-tbl-progress-bar {
+  background: linear-gradient(90deg, #10B981 0%, #27C985 100%) !important;
+  box-shadow: 0 0 8px rgba(39, 201, 133, 0.4);
+}
+
+body.dark-mode .idm-btn-action {
+  border-color: #26382E !important;
+  color: #8CA397 !important;
+}
+
+body.dark-mode .idm-btn-action:hover {
+  background: #1E2D25 !important;
+  color: #27C985 !important;
+  border-color: #27C985 !important;
+}
+
+

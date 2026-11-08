@@ -1,711 +1,932 @@
 <?php
-$pageTitle = 'FlowFetch - High-Speed Video & Audio Downloader (IDM Inspired)';
-require __DIR__ . '/layouts/header.php';
+use App\Core\Auth;
+use App\Core\Security;
+
+$currentUser = Auth::user();
+$csrfToken = Security::getCsrfToken();
+$pageTitle = 'DownloadPro v1.0 IDM Edition - Advanced Video & Audio Downloader';
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<?= $csrfToken ?>">
+    <title><?= htmlspecialchars($pageTitle) ?></title>
+    
+    <!-- Meta SEO -->
+    <meta name="description" content="DownloadPro IDM Edition - High-speed multi-threaded video and audio downloader. Extract 4K videos, playlists, and convert media with FFmpeg.">
+    <link rel="icon" type="image/svg+xml" href="public/assets/img/logo.svg">
 
-<!-- 3. Hero Section with Large Downloader Input -->
-<section class="hero-section text-center">
-    <div class="container position-relative">
-        <div class="hero-badge mx-auto">
-            <i class="fa-solid fa-bolt"></i> IDM-Inspired Multi-Segment Engine
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- App Styles -->
+    <link rel="stylesheet" href="public/css/app.css">
+    <link rel="stylesheet" href="public/css/dark-mode.css">
+
+    <!-- GSAP Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+</head>
+<body class="dark-mode">
+
+<div class="idm-app-wrapper">
+
+    <!-- Top Window / Action Toolbar (Exact Match with Screenshot) -->
+    <header class="idm-topbar">
+        <div class="d-flex align-items-center gap-3">
+            <a class="idm-brand" href="./">
+                <div class="brand-icon" style="width: 32px; height: 32px; font-size: 1rem; border-radius: 6px;">
+                    <i class="fa-solid fa-cloud-arrow-down"></i>
+                </div>
+                <span>Download<span class="text-primary-custom">Pro</span></span>
+                <span class="idm-version-badge">v1.0 IDM Edition</span>
+            </a>
         </div>
 
-        <h1 class="hero-title">
-            The Fastest Way to Download <br>
-            <span>Video & Audio in 4K Quality</span>
-        </h1>
-
-        <p class="hero-subtitle">
-            Extract high-fidelity streams, complete playlists, and transcode audio at maximum speed. Clean, secure, and powered by server-side FFmpeg 7.1.
-        </p>
-
-        <!-- Downloader Card -->
-        <div class="downloader-card">
-            <div class="input-container">
-                <i class="fa-solid fa-link input-icon"></i>
-                <input type="text" class="url-input" id="mainMediaUrl" placeholder="Paste authorized video or playlist URL (e.g. YouTube, Vimeo, direct MP4)..." autocomplete="off">
-                
-                <!-- 4. Paste URL functionality -->
-                <button type="button" class="paste-btn" id="pasteClipboardBtn" onclick="FlowDownloader.pasteFromClipboard('mainMediaUrl')">
-                    <i class="fa-regular fa-clipboard"></i> Paste URL
-                </button>
-
-                <!-- 5. Download / Inspect Button -->
-                <button type="button" class="btn btn-primary-custom action-btn" id="analyzeMediaBtn" onclick="FlowDownloader.analyzeUrl('mainMediaUrl')">
-                    <i class="fa-solid fa-arrow-down-to-line"></i> <span>Download</span>
-                </button>
-            </div>
-
-            <!-- 6. Supported Media Source Information -->
-            <div class="sources-bar" id="sources">
-                <span class="source-pill"><i class="fa-brands fa-youtube text-danger"></i> YouTube</span>
-                <span class="source-pill"><i class="fa-brands fa-vimeo-v text-info"></i> Vimeo</span>
-                <span class="source-pill"><i class="fa-brands fa-soundcloud text-warning"></i> SoundCloud</span>
-                <span class="source-pill"><i class="fa-brands fa-tiktok text-dark"></i> TikTok</span>
-                <span class="source-pill"><i class="fa-brands fa-dailymotion text-primary"></i> Dailymotion</span>
-                <span class="source-pill"><i class="fa-solid fa-file-video text-success"></i> Direct MP4 / WebM</span>
-                <span class="source-pill"><i class="fa-solid fa-podcast text-secondary"></i> Podcast RSS</span>
-            </div>
+        <!-- Action Buttons -->
+        <div class="idm-actions-toolbar">
+            <button type="button" class="idm-btn-tool btn-add-url" onclick="FlowIDM.openAddUrlModal()">
+                <i class="fa-solid fa-plus"></i> Add URL
+            </button>
+            <button type="button" class="idm-btn-tool btn-resume" onclick="FlowIDM.resumeAll()">
+                <i class="fa-solid fa-play"></i> Resume All
+            </button>
+            <button type="button" class="idm-btn-tool btn-pause" onclick="FlowIDM.pauseAll()">
+                <i class="fa-solid fa-pause"></i> Pause All
+            </button>
+            <button type="button" class="idm-btn-tool btn-stop" onclick="FlowIDM.stopAll()">
+                <i class="fa-solid fa-stop"></i> Stop All
+            </button>
+            <button type="button" class="idm-btn-tool" onclick="FlowIDM.openVideoDownloader()">
+                <i class="fa-solid fa-video text-primary-custom"></i> Video Downloader
+            </button>
+            <button type="button" class="idm-btn-tool" onclick="FlowIDM.openExtractAudioModal()">
+                <i class="fa-solid fa-scissors text-info"></i> Extract Audio
+            </button>
+            <button type="button" class="idm-btn-tool" onclick="FlowIDM.cleanCompleted()">
+                <i class="fa-solid fa-trash-can text-muted"></i> Clean Completed
+            </button>
+            <button type="button" class="idm-btn-tool" onclick="FlowIDM.openSettingsModal()">
+                <i class="fa-solid fa-gear text-secondary"></i> Settings
+            </button>
         </div>
 
-        <!-- 7. Media Inspector Card (Appears dynamically upon analysis) -->
-        <div class="inspector-card text-start" id="mediaInspectorCard">
-            <div class="inspector-header">
-                <div class="inspector-thumb-wrap">
-                    <img src="" alt="Thumbnail" class="inspector-thumb" id="inspectorThumb">
-                    <span class="inspector-duration" id="inspectorDuration">00:00</span>
-                </div>
-                <div class="inspector-info">
-                    <h4 id="inspectorTitle">Analyzing Media...</h4>
-                    <div class="inspector-meta mb-2">
-                        <span><i class="fa-regular fa-user me-1"></i> <span id="inspectorAuthor">Source</span></span>
-                        <span><i class="fa-regular fa-eye me-1"></i> <span id="inspectorViews">0</span> Views</span>
-                        <span><i class="fa-solid fa-globe me-1"></i> <span id="inspectorExtractor">Web Media</span></span>
-                    </div>
-                    <div class="d-flex align-items-center gap-2 mt-2">
-                        <label class="form-label mb-0 small text-muted fw-bold">Save into Folder:</label>
-                        <select class="form-select form-select-sm w-auto" id="inspectorFolderSelect">
-                            <option value="">Default (Unfiled)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+        <!-- Right: Theme & Account -->
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-sm btn-light rounded-circle p-2 text-muted border-0 shadow-none" id="themeToggleBtn" title="Toggle Light / Dark mode">
+                <i class="fa-solid fa-sun text-warning"></i>
+            </button>
 
-            <!-- Format Selector Tabs -->
-            <div class="format-tabs">
-                <ul class="nav nav-tabs nav-tabs-custom" id="mediaFormatTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="video-tab" data-bs-toggle="tab" data-bs-target="#tab-video" type="button" role="tab">
-                            <i class="fa-solid fa-film me-1"></i> Video Streams
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="audio-tab" data-bs-toggle="tab" data-bs-target="#tab-audio" type="button" role="tab">
-                            <i class="fa-solid fa-headphones me-1"></i> Audio Only
-                        </button>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="tab-content" id="mediaFormatTabContent">
-                <!-- Video Stream Formats Grid -->
-                <div class="tab-pane fade show active" id="tab-video" role="tabpanel">
-                    <div class="format-grid" id="videoFormatsGrid">
-                        <!-- Filled by JS -->
-                    </div>
-                </div>
-
-                <!-- Audio Stream Formats Grid -->
-                <div class="tab-pane fade" id="tab-audio" role="tabpanel">
-                    <div class="format-grid" id="audioFormatsGrid">
-                        <!-- Filled by JS -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- 8. Dedicated Audio Downloader Section -->
-<section class="py-5" id="audio-downloader" style="background: #FFFFFF;">
-    <div class="container">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-6">
-                <span class="badge bg-soft-mint text-primary-custom px-3 py-2 fw-bold mb-3">
-                    <i class="fa-solid fa-music me-1"></i> Studio Grade Audio
-                </span>
-                <h2 class="display-6 fw-bold mb-3">Direct Audio Extractor & High-Bitrate Ripper</h2>
-                <p class="text-muted mb-4">
-                    Extract crystal-clear sound streams directly from authorized videos and music platforms without video bloat. Choose between pristine 320 kbps MP3, studio WAV, lossless FLAC, AAC, or OGG.
-                </p>
-                <div class="row g-3 mb-4">
-                    <div class="col-sm-6">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="brand-icon" style="width: 36px; height: 36px; font-size: 1rem;">
-                                <i class="fa-solid fa-sliders"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-0 fw-bold">Up to 320 kbps</h6>
-                                <small class="text-muted">Maximum fidelity MP3</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="brand-icon" style="width: 36px; height: 36px; font-size: 1rem;">
-                                <i class="fa-solid fa-compact-disc"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-0 fw-bold">Lossless FLAC & WAV</h6>
-                                <small class="text-muted">Bit-perfect extraction</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="card border-0 shadow-sm p-4 bg-light-mint" style="border-radius: var(--radius-md);">
-                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-headphones text-primary-custom me-2"></i>Quick Audio Grabber</h5>
-                    <div class="mb-3">
-                        <label class="form-label small text-muted fw-bold">Media or Track URL</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="audioOnlyUrl" placeholder="Paste link from SoundCloud, YouTube, or Podcast...">
-                            <button class="btn btn-outline-secondary" type="button" onclick="FlowDownloader.pasteFromClipboard('audioOnlyUrl')"><i class="fa-regular fa-clipboard"></i></button>
-                        </div>
-                    </div>
-                    <div class="row g-2 mb-3">
-                        <div class="col-6">
-                            <label class="form-label small text-muted fw-bold">Format</label>
-                            <select class="form-select" id="quickAudioFormat">
-                                <option value="mp3" selected>MP3 (.mp3)</option>
-                                <option value="m4a">M4A / AAC (.m4a)</option>
-                                <option value="wav">WAV (.wav)</option>
-                                <option value="flac">FLAC (.flac)</option>
-                                <option value="ogg">OGG (.ogg)</option>
-                            </select>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small text-muted fw-bold">Bitrate</label>
-                            <select class="form-select" id="quickAudioBitrate">
-                                <option value="320k" selected>320 kbps (Extreme)</option>
-                                <option value="256k">256 kbps (High)</option>
-                                <option value="192k">192 kbps (Standard)</option>
-                                <option value="128k">128 kbps (Compact)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-primary-custom w-100 py-2" onclick="FlowDownloader.quickAudioDownload()">
-                        <i class="fa-solid fa-download me-1"></i> Extract & Download Audio
+            <?php if ($currentUser): ?>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-custom dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-circle-user me-1"></i> <?= htmlspecialchars($currentUser['name']) ?>
                     </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                        <li><a class="dropdown-item py-2" href="dashboard"><i class="fa-solid fa-gauge-high me-2 text-primary-custom"></i> Dashboard</a></li>
+                        <?php if ($currentUser['role'] === 'admin'): ?>
+                            <li><a class="dropdown-item py-2 text-danger" href="admin"><i class="fa-solid fa-user-shield me-2"></i> Admin Panel</a></li>
+                        <?php endif; ?>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item py-2 text-danger" href="javascript:void(0)" onclick="FlowApp.logout()"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Log Out</a></li>
+                    </ul>
                 </div>
-            </div>
+            <?php else: ?>
+                <a href="login" class="btn btn-sm btn-outline-custom">Log In</a>
+            <?php endif; ?>
         </div>
-    </div>
-</section>
+    </header>
 
-<!-- 9. Playlist Downloader Section (MAJOR FEATURE) -->
-<section class="py-5" id="playlist-downloader" style="background: var(--bg-light);">
-    <div class="container">
-        <div class="text-center max-w-700 mx-auto mb-5">
-            <span class="badge bg-soft-mint text-primary-custom px-3 py-2 fw-bold mb-2">
-                <i class="fa-solid fa-list-check me-1"></i> Batch Processing
-            </span>
-            <h2 class="display-6 fw-bold">Complete Playlist Downloader</h2>
-            <p class="text-muted">
-                Analyze complete playlists, select individual videos or download the entire batch with one click into a dedicated folder.
-            </p>
-        </div>
+    <!-- Main Application Layout: Sidebar + Workspace -->
+    <div class="idm-main-layout">
 
-        <div class="downloader-card mb-4">
-            <div class="input-container">
-                <i class="fa-solid fa-rectangle-list input-icon"></i>
-                <input type="text" class="url-input" id="playlistUrlInput" placeholder="Paste full playlist URL (e.g. YouTube Playlist, Vimeo Album)..." autocomplete="off">
-                <button type="button" class="paste-btn" onclick="FlowDownloader.pasteFromClipboard('playlistUrlInput')">
-                    <i class="fa-regular fa-clipboard"></i> Paste
-                </button>
-                <button type="button" class="btn btn-primary-custom action-btn" id="analyzePlaylistBtn" onclick="FlowPlaylist.analyzePlaylist()">
-                    <i class="fa-solid fa-magnifying-glass"></i> <span>Fetch Playlist</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Playlist Interactive Table Wrap -->
-        <div class="playlist-table-wrap d-none" id="playlistTableWrap">
-            <div class="playlist-toolbar">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="form-check mb-0">
-                        <input class="form-check-input" type="checkbox" id="selectAllCheckbox" onchange="FlowPlaylist.toggleSelectAll(this)" checked>
-                        <label class="form-check-label fw-bold" for="selectAllCheckbox">Select All (<span id="plSelectedCount">0</span>/<span id="plTotalCount">0</span>)</label>
+        <!-- Left Navigation & Filter Sidebar (Exact Match with Screenshot) -->
+        <aside class="idm-sidebar">
+            <!-- 1. NAVIGATION -->
+            <div>
+                <div class="idm-sidebar-section-title">NAVIGATION</div>
+                <div class="idm-nav-item active" id="navItemDashboard" onclick="FlowIDM.switchTab('dashboard')">
+                    <div class="idm-nav-left">
+                        <i class="fa-solid fa-gauge-high text-primary-custom"></i>
+                        <span>Dashboard</span>
                     </div>
-                    <span class="text-muted">|</span>
-                    <h6 class="mb-0 fw-bold text-truncate" style="max-width: 380px;" id="plTitleDisplay">Playlist Name</h6>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <select class="form-select form-select-sm w-auto" id="plBatchQuality">
-                        <option value="1080p">1080p Full HD</option>
-                        <option value="720p" selected>720p HD</option>
-                        <option value="480p">480p SD</option>
-                        <option value="360p">360p Mobile</option>
-                    </select>
-                    <div class="form-check form-check-inline mb-0 ms-2">
-                        <input class="form-check-input" type="checkbox" id="plCreateFolderCheck" checked>
-                        <label class="form-check-label small fw-bold" for="plCreateFolderCheck">Dedicated Folder</label>
+                <div class="idm-nav-item" id="navItemVideo" onclick="FlowIDM.openAddUrlModal('video')">
+                    <div class="idm-nav-left">
+                        <i class="fa-solid fa-video"></i>
+                        <span>Video Downloader</span>
                     </div>
-                    <button type="button" class="btn btn-primary-custom btn-sm" onclick="FlowPlaylist.startBatchDownload()">
-                        <i class="fa-solid fa-cloud-arrow-down me-1"></i> Download Selected
-                    </button>
                 </div>
-            </div>
-
-            <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light sticky-top">
-                        <tr>
-                            <th style="width: 40px;"></th>
-                            <th style="width: 60px;">#</th>
-                            <th style="width: 120px;">Thumbnail</th>
-                            <th>Title & Author</th>
-                            <th style="width: 100px;">Duration</th>
-                            <th style="width: 120px;">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="playlistTableBody">
-                        <!-- Dynamically populated entries -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- 10. 4K Video Quality Section -->
-<section class="py-5" id="quality-4k" style="background: #FFFFFF;">
-    <div class="container">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-6 order-lg-2">
-                <span class="badge bg-warning bg-opacity-25 text-warning px-3 py-2 fw-bold mb-3">
-                    <i class="fa-solid fa-sparkles me-1"></i> Ultra HD 2160p
-                </span>
-                <h2 class="display-6 fw-bold mb-3">Crystal-Clear 4K UHD Video Downloads</h2>
-                <p class="text-muted mb-4">
-                    FlowFetch inspects the source server's raw bitrate streams to preserve original color grading, 60fps frame rates, and sharp textures up to 3840x2160 resolution.
-                </p>
-                <div class="d-flex flex-wrap gap-2 mb-4">
-                    <span class="badge badge-4k p-2 px-3 fw-bold">4K 2160p</span>
-                    <span class="badge badge-4k p-2 px-3 fw-bold">2K 1440p</span>
-                    <span class="badge badge-fhd p-2 px-3 fw-bold">FHD 1080p</span>
-                    <span class="badge badge-hd p-2 px-3 fw-bold">HD 720p</span>
-                    <span class="badge bg-light text-dark p-2 px-3 fw-bold">480p SD</span>
-                    <span class="badge bg-light text-dark p-2 px-3 fw-bold">360p</span>
+                <div class="idm-nav-item" id="navItemAudio" onclick="FlowIDM.openAddUrlModal('audio')">
+                    <div class="idm-nav-left">
+                        <i class="fa-solid fa-music"></i>
+                        <span>Audio Downloader</span>
+                    </div>
                 </div>
-                <ul class="list-unstyled text-muted">
-                    <li class="mb-2"><i class="fa-solid fa-check text-primary-custom me-2"></i> Automatically stitches video + high bitrate audio streams with FFmpeg</li>
-                    <li class="mb-2"><i class="fa-solid fa-check text-primary-custom me-2"></i> Only displays resolutions genuinely offered by the target media</li>
-                    <li><i class="fa-solid fa-check text-primary-custom me-2"></i> Clean MP4 output compatible with all smart TVs, phones, and editing software</li>
-                </ul>
-            </div>
-            <div class="col-lg-6 order-lg-1">
-                <div class="p-4 rounded-4 bg-dark text-white text-center position-relative overflow-hidden shadow-lg" style="background: linear-gradient(135deg, #1A2420 0%, #0F1714 100%);">
-                    <div class="py-5">
-                        <i class="fa-solid fa-display display-1 text-secondary-custom mb-3"></i>
-                        <h4 class="fw-bold">4K UHD Resolution Ready</h4>
-                        <p class="text-muted small">Up to 3840 x 2160 pixels @ 60 FPS</p>
-                        <div class="badge bg-secondary px-3 py-2">H.264 / AV1 / VP9 Auto-Detection</div>
+                <div class="idm-nav-item" id="navItemExtraction" onclick="FlowIDM.openExtractAudioModal()">
+                    <div class="idm-nav-left">
+                        <i class="fa-solid fa-repeat"></i>
+                        <span>Audio Extraction</span>
+                    </div>
+                </div>
+                <div class="idm-nav-item" id="navItemSettings" onclick="FlowIDM.openSettingsModal()">
+                    <div class="idm-nav-left">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Settings</span>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
 
-<!-- 11. Video to Audio Converter (Real FFmpeg Integration) -->
-<section class="py-5" id="converter-section" style="background: var(--bg-light);">
-    <div class="container">
-        <div class="text-center max-w-700 mx-auto mb-5">
-            <span class="badge bg-soft-mint text-primary-custom px-3 py-2 fw-bold mb-2">
-                <i class="fa-solid fa-repeat me-1"></i> Local Video Transcoder
-            </span>
-            <h2 class="display-6 fw-bold">Video-to-Audio Converter</h2>
-            <p class="text-muted">
-                Upload any video file from your computer and convert it directly into high-fidelity MP3, WAV, AAC, M4A, FLAC, or OGG using server-side FFmpeg.
-            </p>
-        </div>
-
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card border-0 shadow-sm p-4" style="border-radius: var(--radius-md);">
-                    <!-- Drag and Drop Zone -->
-                    <div class="converter-dropzone" id="converterDropzone" onclick="document.getElementById('videoFileInput').click()">
-                        <input type="file" id="videoFileInput" class="d-none" accept="video/mp4,video/webm,video/x-matroska,video/quicktime,video/x-msvideo" onchange="FlowConverter.handleFileSelect(this.files)">
-                        <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
-                        <h5 class="fw-bold mb-1">Drag and drop your video file here</h5>
-                        <p class="text-muted small mb-0">Supports MP4, WebM, MKV, MOV, AVI up to 500 MB</p>
+            <!-- 2. CATEGORIES -->
+            <div>
+                <div class="idm-sidebar-section-title">CATEGORIES</div>
+                <div class="idm-nav-item active" id="catItemAll" onclick="FlowIDM.filterCategory('all')">
+                    <div class="idm-nav-left">
+                        <i class="fa-solid fa-layer-group text-primary-custom"></i>
+                        <span>All Downloads</span>
                     </div>
-
-                    <!-- File Details and Conversion Options -->
-                    <div class="mt-4 d-none" id="converterOptionsPanel">
-                        <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-3 mb-3">
-                            <div class="d-flex align-items-center gap-3">
-                                <i class="fa-solid fa-file-video text-primary-custom fs-3"></i>
-                                <div>
-                                    <div class="fw-bold" id="convFilename">video.mp4</div>
-                                    <small class="text-muted" id="convFilesize">0 MB</small>
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="FlowConverter.reset()"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label small text-muted fw-bold">Output Audio Format</label>
-                                <select class="form-select" id="convTargetFormat">
-                                    <option value="mp3" selected>MP3 (Standard Audio)</option>
-                                    <option value="wav">WAV (Uncompressed PCM)</option>
-                                    <option value="m4a">M4A (Apple AAC)</option>
-                                    <option value="flac">FLAC (Lossless Hi-Res)</option>
-                                    <option value="ogg">OGG (Vorbis)</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small text-muted fw-bold">Audio Bitrate</label>
-                                <select class="form-select" id="convTargetBitrate">
-                                    <option value="320k" selected>320 kbps (High Fidelity)</option>
-                                    <option value="256k">256 kbps (Studio)</option>
-                                    <option value="192k">192 kbps (Standard)</option>
-                                    <option value="128k">128 kbps (Lightweight)</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Progress Bar Container -->
-                        <div class="d-none mb-3" id="convProgressWrap">
-                            <div class="d-flex justify-content-between small fw-bold mb-1">
-                                <span id="convStatusText">Converting audio with FFmpeg...</span>
-                                <span id="convProgressPct">0%</span>
-                            </div>
-                            <div class="progress" style="height: 10px;">
-                                <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" id="convProgressBar" role="progressbar" style="width: 0%"></div>
-                            </div>
-                        </div>
-
-                        <!-- Download Converted Result -->
-                        <div class="d-none text-center p-3 bg-soft-mint rounded-3 mb-3" id="convResultWrap">
-                            <i class="fa-solid fa-circle-check text-primary-custom fs-2 mb-2"></i>
-                            <h6 class="fw-bold mb-3">Conversion Completed Successfully!</h6>
-                            <a href="#" class="btn btn-primary-custom" id="convDownloadLink" download>
-                                <i class="fa-solid fa-download me-1"></i> Download Converted Audio
-                            </a>
-                        </div>
-
-                        <button type="button" class="btn btn-primary-custom w-100 py-2" id="startConversionBtn" onclick="FlowConverter.startTranscode()">
-                            <i class="fa-solid fa-gears me-1"></i> Start FFmpeg Conversion
-                        </button>
+                    <span class="idm-counter-pill" id="catCountAll">0</span>
+                </div>
+                <div class="idm-nav-item" id="catItemVideos" onclick="FlowIDM.filterCategory('videos')">
+                    <div class="idm-nav-left">
+                        <i class="fa-solid fa-film" style="color: #8B5CF6;"></i>
+                        <span>Videos</span>
                     </div>
+                    <span class="idm-counter-pill" id="catCountVideos">0</span>
+                </div>
+                <div class="idm-nav-item" id="catItemAudio" onclick="FlowIDM.filterCategory('audio')">
+                    <div class="idm-nav-left">
+                        <i class="fa-solid fa-headphones" style="color: #10B981;"></i>
+                        <span>Music & Audio</span>
+                    </div>
+                    <span class="idm-counter-pill" id="catCountAudio">0</span>
+                </div>
+                <div class="idm-nav-item" id="catItemDocs" onclick="FlowIDM.filterCategory('documents')">
+                    <div class="idm-nav-left">
+                        <i class="fa-solid fa-file-lines" style="color: #F59E0B;"></i>
+                        <span>Documents</span>
+                    </div>
+                    <span class="idm-counter-pill" id="catCountDocs">0</span>
+                </div>
+                <div class="idm-nav-item" id="catItemPrograms" onclick="FlowIDM.filterCategory('programs')">
+                    <div class="idm-nav-left">
+                        <i class="fa-solid fa-window-restore" style="color: #3B82F6;"></i>
+                        <span>Programs (.exe)</span>
+                    </div>
+                    <span class="idm-counter-pill" id="catCountPrograms">0</span>
+                </div>
+                <div class="idm-nav-item" id="catItemCompressed" onclick="FlowIDM.filterCategory('compressed')">
+                    <div class="idm-nav-left">
+                        <i class="fa-solid fa-file-zipper" style="color: #EF4444;"></i>
+                        <span>Compressed</span>
+                    </div>
+                    <span class="idm-counter-pill" id="catCountCompressed">0</span>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
 
-<!-- 12. How It Works Section -->
-<section class="py-5" id="how-it-works" style="background: #FFFFFF;">
-    <div class="container">
-        <div class="text-center max-w-700 mx-auto mb-5">
-            <span class="badge bg-soft-mint text-primary-custom px-3 py-2 fw-bold mb-2">
-                <i class="fa-solid fa-lightbulb me-1"></i> Simple Workflow
-            </span>
-            <h2 class="display-6 fw-bold">How FlowFetch Works</h2>
-            <p class="text-muted">Download authorized media in 3 effortless steps without bloat or confusing menus.</p>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div class="feature-icon-box mx-auto">
-                        <i class="fa-solid fa-paste"></i>
+            <!-- 3. STATUS FILTER -->
+            <div>
+                <div class="idm-sidebar-section-title">STATUS FILTER</div>
+                <div class="idm-nav-item" id="stItemProgress" onclick="FlowIDM.filterStatus('in_progress')">
+                    <div class="idm-nav-left">
+                        <span class="status-dot dot-progress"></span>
+                        <span>In Progress</span>
                     </div>
-                    <h5 class="fw-bold">1. Paste Media URL</h5>
-                    <p class="text-muted small">
-                        Paste the video or playlist link into the downloader input bar. Click the handy Paste button to grab it straight from your clipboard.
-                    </p>
+                    <span class="idm-counter-pill" id="stCountProgress">0</span>
+                </div>
+                <div class="idm-nav-item" id="stItemCompleted" onclick="FlowIDM.filterStatus('completed')">
+                    <div class="idm-nav-left">
+                        <span class="status-dot dot-completed"></span>
+                        <span>Completed</span>
+                    </div>
+                    <span class="idm-counter-pill" id="stCountCompleted">0</span>
+                </div>
+                <div class="idm-nav-item" id="stItemPaused" onclick="FlowIDM.filterStatus('paused')">
+                    <div class="idm-nav-left">
+                        <span class="status-dot dot-paused"></span>
+                        <span>Paused</span>
+                    </div>
+                    <span class="idm-counter-pill" id="stCountPaused">0</span>
+                </div>
+                <div class="idm-nav-item" id="stItemFailed" onclick="FlowIDM.filterStatus('failed')">
+                    <div class="idm-nav-left">
+                        <span class="status-dot dot-failed"></span>
+                        <span>Failed</span>
+                    </div>
+                    <span class="idm-counter-pill" id="stCountFailed">0</span>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div class="feature-icon-box mx-auto">
+        </aside>
+
+        <!-- Right Workspace (Exact Match with Screenshot) -->
+        <main class="idm-workspace">
+
+            <!-- 5 Metric Cards Row -->
+            <div class="idm-metrics-row">
+                <!-- Total Downloads -->
+                <div class="idm-metric-card">
+                    <div class="idm-metric-icon-box">
+                        <i class="fa-solid fa-cloud-arrow-down"></i>
+                    </div>
+                    <div class="idm-metric-info">
+                        <label>Total Downloads</label>
+                        <span id="metricTotal">0</span>
+                    </div>
+                </div>
+
+                <!-- Completed -->
+                <div class="idm-metric-card">
+                    <div class="idm-metric-icon-box" style="color: #10B981; background: rgba(16, 185, 129, 0.12);">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div class="idm-metric-info">
+                        <label>Completed</label>
+                        <span id="metricCompleted">0</span>
+                    </div>
+                </div>
+
+                <!-- Active / Queue -->
+                <div class="idm-metric-card">
+                    <div class="idm-metric-icon-box" style="color: #F59E0B; background: rgba(245, 158, 11, 0.12);">
                         <i class="fa-solid fa-sliders"></i>
                     </div>
-                    <h5 class="fw-bold">2. Select Quality & Format</h5>
-                    <p class="text-muted small">
-                        Review the probed resolutions up to 4K 2160p or select audio formats (MP3, WAV, FLAC). Pick your destination folder.
-                    </p>
+                    <div class="idm-metric-info">
+                        <label>Active / Queue</label>
+                        <span id="metricActive">0</span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-card text-center">
-                    <div class="feature-icon-box mx-auto">
+
+                <!-- Current Speed -->
+                <div class="idm-metric-card">
+                    <div class="idm-metric-icon-box" style="color: #8B5CF6; background: rgba(139, 92, 246, 0.12);">
                         <i class="fa-solid fa-bolt-lightning"></i>
                     </div>
-                    <h5 class="fw-bold">3. Multi-Segment Download</h5>
-                    <p class="text-muted small">
-                        The IDM-inspired engine splits streams into parallel chunks for maximum throughput with pause, resume, and instant save.
-                    </p>
+                    <div class="idm-metric-info">
+                        <label>Current Speed</label>
+                        <span id="metricSpeed" style="font-size: 1.15rem;">0.0 KB/s</span>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</section>
 
-<!-- 13. Features Section -->
-<section class="py-5" id="features" style="background: var(--bg-light);">
-    <div class="container">
-        <div class="text-center max-w-700 mx-auto mb-5">
-            <span class="badge bg-soft-mint text-primary-custom px-3 py-2 fw-bold mb-2">
-                <i class="fa-solid fa-cube me-1"></i> Production Features
-            </span>
-            <h2 class="display-6 fw-bold">Engineered for Performance</h2>
-            <p class="text-muted">A complete suite of download management tools built with enterprise-grade security.</p>
-        </div>
+                <!-- Total Data -->
+                <div class="idm-metric-card">
+                    <div class="idm-metric-icon-box" style="color: #3B82F6; background: rgba(59, 130, 246, 0.12);">
+                        <i class="fa-solid fa-database"></i>
+                    </div>
+                    <div class="idm-metric-info">
+                        <label>Total Data</label>
+                        <span id="metricTotalData" style="font-size: 1.15rem;">0.0 MB</span>
+                    </div>
+                </div>
+            </div>
 
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon-box">
-                        <i class="fa-solid fa-network-wired"></i>
+            <!-- All Downloads Table Card -->
+            <div class="idm-queue-card">
+                <div class="idm-queue-header">
+                    <div class="idm-queue-title-wrap">
+                        <h4 class="idm-queue-title" id="idmViewTitle">All Downloads</h4>
+                        <span class="idm-queue-items-badge" id="idmViewBadge">0 items</span>
                     </div>
-                    <h5 class="fw-bold">IDM-Speed Multi-Threading</h5>
-                    <p class="text-muted small mb-0">Splits heavy video streams into concurrent segments to maximize bandwidth utilization and avoid throttled connections.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon-box">
-                        <i class="fa-solid fa-folder-tree"></i>
-                    </div>
-                    <h5 class="fw-bold">Virtual Folder Manager</h5>
-                    <p class="text-muted small mb-0">Organize your downloads into custom categorized folders, move items, and search file history effortlessly.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon-box">
-                        <i class="fa-solid fa-shield-virus"></i>
-                    </div>
-                    <h5 class="fw-bold">SSRF Protected & Secure</h5>
-                    <p class="text-muted small mb-0">Protects internal infrastructure with DNS resolution checks, rejecting private RFC 1918 and loopback subnets.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon-box">
-                        <i class="fa-solid fa-circle-play"></i>
-                    </div>
-                    <h5 class="fw-bold">Resumable HTTP Range</h5>
-                    <p class="text-muted small mb-0">Completed files support HTTP 206 Partial Content, allowing native download managers like IDM to pause and resume seamlessly.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon-box">
-                        <i class="fa-solid fa-layer-group"></i>
-                    </div>
-                    <h5 class="fw-bold">Batch Playlist Processing</h5>
-                    <p class="text-muted small mb-0">Select all or pick specific videos from massive playlists and download them sequentially into automatically created folders.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon-box">
-                        <i class="fa-solid fa-clock-rotate-left"></i>
-                    </div>
-                    <h5 class="fw-bold">Automated Retention Cleanup</h5>
-                    <p class="text-muted small mb-0">Automated retention cron purges temporary files older than 48 hours to preserve disk performance and user privacy.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
-<!-- 14. Supported Formats Table -->
-<section class="py-5" id="supported-formats" style="background: #FFFFFF;">
-    <div class="container">
-        <div class="text-center max-w-700 mx-auto mb-5">
-            <span class="badge bg-soft-mint text-primary-custom px-3 py-2 fw-bold mb-2">
-                <i class="fa-solid fa-file-audio me-1"></i> Formats & Codecs
-            </span>
-            <h2 class="display-6 fw-bold">Supported Formats & Containers</h2>
-            <p class="text-muted">Compatible with all major audio-video containers and modern codec standards.</p>
-        </div>
+                    <!-- Search Box -->
+                    <div class="idm-search-wrap">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" class="idm-search-input" id="idmSearchInput" placeholder="Search downloads..." oninput="FlowIDM.handleSearch(this.value)">
+                    </div>
+                </div>
 
-        <div class="row g-4 justify-content-center">
-            <div class="col-lg-10">
-                <div class="table-responsive shadow-sm rounded-4">
-                    <table class="table table-bordered mb-0 text-center">
-                        <thead class="table-light">
+                <!-- Data Table -->
+                <div class="table-responsive">
+                    <table class="idm-table">
+                        <thead>
                             <tr>
-                                <th>Category</th>
-                                <th>Extension</th>
-                                <th>Supported Resolutions / Bitrates</th>
-                                <th>Compatible Codecs</th>
-                                <th>Recommended Device</th>
+                                <th style="width: 40px;">
+                                    <input type="checkbox" class="form-check-input" id="idmMasterCheck" onchange="FlowIDM.toggleSelectAll(this)">
+                                </th>
+                                <th style="width: 70px;">TYPE</th>
+                                <th>FILE NAME</th>
+                                <th style="width: 100px;">SIZE</th>
+                                <th style="width: 180px;">PROGRESS</th>
+                                <th style="width: 120px;">STATUS</th>
+                                <th style="width: 120px;">SPEED / ETA</th>
+                                <th style="width: 130px; text-align: right;">ACTIONS</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="idmTableBody">
                             <tr>
-                                <td class="fw-bold text-start"><i class="fa-solid fa-film text-primary-custom me-2"></i>Video</td>
-                                <td><span class="badge bg-primary">MP4</span></td>
-                                <td>360p, 480p, 720p HD, 1080p FHD, 1440p 2K, 2160p 4K</td>
-                                <td>H.264 / AVC, AAC</td>
-                                <td>Universal (PC, iPhone, Android, TVs)</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold text-start"><i class="fa-solid fa-film text-info me-2"></i>Video</td>
-                                <td><span class="badge bg-info">WebM</span></td>
-                                <td>Up to 4K UHD 60fps</td>
-                                <td>VP9, AV1, Opus</td>
-                                <td>Modern Browsers, Linux, YouTube</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold text-start"><i class="fa-solid fa-headphones text-success me-2"></i>Audio</td>
-                                <td><span class="badge bg-success">MP3</span></td>
-                                <td>128 kbps, 192 kbps, 256 kbps, 320 kbps</td>
-                                <td>MPEG-1 Audio Layer III</td>
-                                <td>All Audio Players, Car Stereos</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold text-start"><i class="fa-solid fa-headphones text-warning me-2"></i>Audio</td>
-                                <td><span class="badge bg-warning text-dark">WAV</span></td>
-                                <td>1411 kbps (16-bit / 44.1kHz PCM)</td>
-                                <td>Linear PCM Uncompressed</td>
-                                <td>Studio DAWs, Audacity, Editors</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold text-start"><i class="fa-solid fa-headphones text-secondary me-2"></i>Audio</td>
-                                <td><span class="badge bg-secondary">M4A / AAC</span></td>
-                                <td>Up to 256 kbps</td>
-                                <td>Advanced Audio Codec</td>
-                                <td>Apple Music, Mac, iPod, QuickTime</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold text-start"><i class="fa-solid fa-headphones text-danger me-2"></i>Audio</td>
-                                <td><span class="badge bg-danger">FLAC</span></td>
-                                <td>Lossless Compression (100% Bit-Perfect)</td>
-                                <td>Free Lossless Audio Codec</td>
-                                <td>Audiophile Headsets, Hi-Res DAPs</td>
+                                <td colspan="8" class="text-center py-5 text-muted">
+                                    <i class="fa-solid fa-spinner fa-spin me-2"></i> Loading download queue...
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div>
+
+        </main>
     </div>
-</section>
+</div>
 
-<!-- 15. Frequently Asked Questions -->
-<section class="py-5" id="faq" style="background: var(--bg-light);">
-    <div class="container">
-        <div class="text-center max-w-700 mx-auto mb-5">
-            <span class="badge bg-soft-mint text-primary-custom px-3 py-2 fw-bold mb-2">
-                <i class="fa-solid fa-question me-1"></i> Knowledge Base
-            </span>
-            <h2 class="display-6 fw-bold">Frequently Asked Questions</h2>
-            <p class="text-muted">Everything you need to know about downloading, formatting, and file limits.</p>
-        </div>
+<!-- ==========================================================================
+     MODALS
+     ========================================================================== -->
 
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="accordion shadow-sm rounded-4 overflow-hidden" id="faqAccordion">
-                    <div class="accordion-item border-0 border-bottom">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                                Can I download 4K videos at 60 FPS?
-                            </button>
-                        </h2>
-                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body text-muted">
-                                Yes! Whenever the source video offers a 2160p (4K) stream, FlowFetch detects it and automatically merges the high-definition video track with the highest available audio stream using server-side FFmpeg.
-                            </div>
+<!-- 1. Add URL Modal -->
+<div class="modal fade" id="addUrlModal" tabindex="-1" aria-labelledby="addUrlModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content idm-dialog">
+            <div class="idm-header">
+                <h5><i class="fa-solid fa-plus-circle text-primary-custom me-2"></i>Add New Download</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="idm-body">
+                <div class="input-container mb-3">
+                    <i class="fa-solid fa-link input-icon"></i>
+                    <input type="text" class="url-input" id="modalUrlInput" placeholder="Paste video, audio, or playlist URL (YouTube, Vimeo, SoundCloud, Direct MP4)...">
+                    <button type="button" class="paste-btn" onclick="FlowDownloader.pasteFromClipboard('modalUrlInput')">
+                        <i class="fa-regular fa-clipboard"></i> Paste
+                    </button>
+                    <button type="button" class="btn btn-primary-custom action-btn" id="modalAnalyzeBtn" onclick="FlowIDM.analyzeFromModal()">
+                        <i class="fa-solid fa-bolt"></i> Inspect
+                    </button>
+                </div>
+
+                <!-- Sources info badges -->
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="source-pill small"><i class="fa-brands fa-youtube text-danger"></i> YouTube</span>
+                    <span class="source-pill small"><i class="fa-brands fa-vimeo-v text-info"></i> Vimeo</span>
+                    <span class="source-pill small"><i class="fa-brands fa-soundcloud text-warning"></i> SoundCloud</span>
+                    <span class="source-pill small"><i class="fa-brands fa-tiktok text-dark"></i> TikTok</span>
+                    <span class="source-pill small"><i class="fa-solid fa-file-video text-success"></i> Direct MP4 / WebM</span>
+                </div>
+
+                <!-- Inspected Media Details Panel -->
+                <div class="border rounded-3 p-3 bg-light d-none" id="modalInspectorResult">
+                    <div class="d-flex gap-3 mb-3">
+                        <img src="" alt="Thumbnail" id="modalThumb" class="rounded" style="width: 140px; height: 80px; object-fit: cover;">
+                        <div>
+                            <h6 class="fw-bold mb-1" id="modalMediaTitle">Title</h6>
+                            <div class="text-muted small mb-1" id="modalMediaMeta">Duration: 00:00</div>
+                            <div class="badge bg-soft-mint text-primary-custom" id="modalExtractor">Direct Stream</div>
                         </div>
                     </div>
 
-                    <div class="accordion-item border-0 border-bottom">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
-                                How does the Playlist Downloader work?
-                            </button>
-                        </h2>
-                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body text-muted">
-                                Paste the URL of any authorized public playlist. FlowFetch inspects all entries, displays thumbnails and durations, and lets you select specific items or check "Select All". You can assign a custom folder for the playlist downloads.
-                            </div>
+                    <!-- Quality / Format Select -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Quality / Resolution</label>
+                            <select class="form-select form-select-sm" id="modalQualitySelect">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Target Folder</label>
+                            <select class="form-select form-select-sm" id="modalFolderSelect">
+                                <option value="">Default (General)</option>
+                            </select>
                         </div>
                     </div>
 
-                    <div class="accordion-item border-0 border-bottom">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
-                                Can I pause and resume my downloads?
-                            </button>
-                        </h2>
-                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body text-muted">
-                                Yes. During server processing, you can use the IDM modal Pause/Resume controls. Once ready on disk, the download link supports HTTP 206 Partial Content, meaning browser downloads and external tools like IDM can resume broken transfers.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item border-0 border-bottom">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
-                                What is the retention policy for downloaded files?
-                            </button>
-                        </h2>
-                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body text-muted">
-                                To maintain privacy and optimal server storage, downloaded media is retained for 48 hours before automated cleanup. You can save files directly to your device via your browser.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item border-0">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
-                                Does FlowFetch download copyrighted or protected DRM media?
-                            </button>
-                        </h2>
-                        <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body text-muted">
-                                No. FlowFetch strictly operates on authorized, public domain, royalty-free, or permitted media through standard APIs. It does not bypass DRM encryption or paywalled access controls.
-                            </div>
-                        </div>
-                    </div>
+                    <button type="button" class="btn btn-primary-custom w-100 py-2" id="modalStartDlBtn" onclick="FlowIDM.startDownloadFromModal()">
+                        <i class="fa-solid fa-cloud-arrow-down me-1"></i> Start Download Now
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-</section>
+</div>
 
-<!-- 16. Contact Section -->
-<section class="py-5" id="contact" style="background: #FFFFFF;">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: var(--radius-md);">
-                    <div class="text-center mb-4">
-                        <span class="badge bg-soft-mint text-primary-custom px-3 py-2 fw-bold mb-2">
-                            <i class="fa-solid fa-envelope me-1"></i> Get In Touch
-                        </span>
-                        <h3 class="fw-bold">Contact Support & Feedback</h3>
-                        <p class="text-muted small">Have an inquiry regarding supported media platforms or enterprise deployment?</p>
+<!-- 2. Extract Audio Modal (Video to Audio Converter) -->
+<div class="modal fade" id="extractAudioModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content idm-dialog">
+            <div class="idm-header">
+                <h5><i class="fa-solid fa-scissors text-info me-2"></i>Video-to-Audio Transcoder (FFmpeg)</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="idm-body">
+                <div class="converter-dropzone mb-3" id="converterDropzone" onclick="document.getElementById('videoFileInput').click()">
+                    <input type="file" id="videoFileInput" class="d-none" accept="video/*" onchange="FlowConverter.handleFileSelect(this.files)">
+                    <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+                    <h5 class="fw-bold mb-1">Drag and drop video file here</h5>
+                    <p class="text-muted small mb-0">Supports MP4, WebM, MKV, MOV, AVI up to 500 MB</p>
+                </div>
+
+                <div class="d-none" id="converterOptionsPanel">
+                    <div class="d-flex align-items-center justify-content-between p-2 bg-light rounded-3 mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-file-video text-primary-custom"></i>
+                            <div>
+                                <div class="fw-bold small" id="convFilename">video.mp4</div>
+                                <small class="text-muted" id="convFilesize">0 MB</small>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="FlowConverter.reset()"><i class="fa-solid fa-trash"></i></button>
                     </div>
 
-                    <form id="contactForm" onsubmit="FlowApp.handleContactSubmit(event)">
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold text-muted">Your Name</label>
-                                <input type="text" class="form-control" name="name" required placeholder="John Doe">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small fw-bold text-muted">Email Address</label>
-                                <input type="email" class="form-control" name="email" required placeholder="name@domain.com">
-                            </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-muted">Audio Format</label>
+                            <select class="form-select form-select-sm" id="convTargetFormat">
+                                <option value="mp3" selected>MP3 (.mp3)</option>
+                                <option value="wav">WAV (.wav)</option>
+                                <option value="m4a">M4A (.m4a)</option>
+                                <option value="flac">FLAC (.flac)</option>
+                                <option value="ogg">OGG (.ogg)</option>
+                            </select>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-muted">Subject</label>
-                            <input type="text" class="form-control" name="subject" required placeholder="Question or Feature Request">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-muted">Bitrate</label>
+                            <select class="form-select form-select-sm" id="convTargetBitrate">
+                                <option value="320k" selected>320 kbps (High Fidelity)</option>
+                                <option value="256k">256 kbps (Studio)</option>
+                                <option value="192k">192 kbps (Standard)</option>
+                                <option value="128k">128 kbps (Compact)</option>
+                            </select>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-muted">Message</label>
-                            <textarea class="form-control" name="message" rows="4" required placeholder="Describe your inquiry..."></textarea>
+                    </div>
+
+                    <div class="d-none mb-3" id="convProgressWrap">
+                        <div class="d-flex justify-content-between small fw-bold mb-1">
+                            <span id="convStatusText">Transcoding with FFmpeg...</span>
+                            <span id="convProgressPct">0%</span>
                         </div>
-                        <button type="submit" class="btn btn-primary-custom w-100 py-2">
-                            <i class="fa-solid fa-paper-plane me-1"></i> Send Message
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" id="convProgressBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-none text-center p-3 bg-soft-mint rounded-3 mb-3" id="convResultWrap">
+                        <i class="fa-solid fa-circle-check text-primary-custom fs-2 mb-2"></i>
+                        <h6 class="fw-bold mb-2">Transcoding Completed!</h6>
+                        <a href="#" class="btn btn-sm btn-primary-custom" id="convDownloadLink" download>
+                            <i class="fa-solid fa-download me-1"></i> Save Converted Audio
+                        </a>
+                    </div>
+
+                    <button type="button" class="btn btn-primary-custom w-100" id="startConversionBtn" onclick="FlowConverter.startTranscode()">
+                        <i class="fa-solid fa-gears me-1"></i> Convert to Audio
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3. Settings Modal -->
+<div class="modal fade" id="settingsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content idm-dialog">
+            <div class="idm-header">
+                <h5><i class="fa-solid fa-gear text-secondary me-2"></i>Application Settings</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="idm-body">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">Preferred Quality</label>
+                    <select class="form-select" id="prefQualityInput">
+                        <option value="2160p">2160p (4K Ultra HD)</option>
+                        <option value="1080p" selected>1080p (Full HD)</option>
+                        <option value="720p">720p (HD)</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">Concurrent Segment Streams</label>
+                    <select class="form-select" id="prefSegmentsInput">
+                        <option value="8" selected>8 Streams (IDM Optimized)</option>
+                        <option value="4">4 Streams</option>
+                        <option value="2">2 Streams</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted">Local Target Directory</label>
+                    <button type="button" class="btn btn-outline-custom w-100" onclick="FlowDashboard.selectLocalFolder()">
+                        <i class="fa-solid fa-folder-open me-1"></i> Pick Local Destination Folder
+                    </button>
+                </div>
+                <div class="alert alert-info py-2 small mb-3">
+                    <i class="fa-solid fa-circle-info me-1"></i> Server retention automatically purges temporary cache files after 48 hours.
+                </div>
+                <button type="button" class="btn btn-primary-custom w-100" data-bs-dismiss="modal">
+                    Save Preferences
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- IDM-Style Download Progress Modal (Segment Visualizer) -->
+<div class="modal fade" id="idmDownloadModal" tabindex="-1" aria-labelledby="idmModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content idm-dialog">
+            <div class="idm-header">
+                <h5 id="idmModalLabel">
+                    <i class="fa-solid fa-cloud-arrow-down text-secondary-custom"></i>
+                    <span id="idmModalTitle">FlowFetch Download Engine</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="idmModalCloseBtn"></button>
+            </div>
+            <div class="idm-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="fw-bold text-truncate" style="max-width: 320px;" id="idmMediaFilename">Initializing stream...</div>
+                    <span class="badge bg-soft-mint text-primary-custom px-2 py-1 fw-bold" id="idmProgressPercent">0%</span>
+                </div>
+
+                <div class="idm-main-progress">
+                    <div class="idm-main-progress-bar h-100" id="idmMainProgressBar" style="width: 0%;"></div>
+                </div>
+
+                <!-- IDM Iconic 8-Segment Visualization -->
+                <div class="idm-segments-container">
+                    <div class="idm-segments-title">
+                        <span><i class="fa-solid fa-network-wired me-1"></i> IDM Multi-Threaded Segments</span>
+                        <span id="idmSegmentsActive">8 Streams Active</span>
+                    </div>
+                    <div class="idm-segments-grid" id="idmSegmentsGrid">
+                        <div class="idm-segment active"></div>
+                        <div class="idm-segment active"></div>
+                        <div class="idm-segment active"></div>
+                        <div class="idm-segment active"></div>
+                        <div class="idm-segment active"></div>
+                        <div class="idm-segment active"></div>
+                        <div class="idm-segment active"></div>
+                        <div class="idm-segment active"></div>
+                    </div>
+                </div>
+
+                <!-- Live Metrics Grid -->
+                <div class="idm-stats-grid mb-3">
+                    <div class="idm-stat-box">
+                        <label>Transfer Speed</label>
+                        <span id="idmSpeedVal">0 KB/s</span>
+                    </div>
+                    <div class="idm-stat-box">
+                        <label>Estimated Time (ETA)</label>
+                        <span id="idmEtaVal">--:--</span>
+                    </div>
+                    <div class="idm-stat-box">
+                        <label>File Transferred</label>
+                        <span id="idmBytesVal">0 MB / 0 MB</span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 justify-content-between align-items-center">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="idmPauseResumeBtn" onclick="FlowDownloader.togglePause()">
+                            <i class="fa-solid fa-pause me-1"></i> Pause
                         </button>
-                    </form>
+                        <button type="button" class="btn btn-sm btn-outline-danger" id="idmCancelBtn" onclick="FlowDownloader.cancelJob()">
+                            <i class="fa-solid fa-xmark me-1"></i> Cancel
+                        </button>
+                    </div>
+                    <a href="#" class="btn btn-primary-custom d-none" id="idmSaveFileBtn" download>
+                        <i class="fa-solid fa-download me-1"></i> Save File
+                    </a>
                 </div>
             </div>
         </div>
     </div>
-</section>
+</div>
 
-<?php require __DIR__ . '/layouts/footer.php'; ?>
+<!-- System Notification Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+    <div id="liveToast" class="toast align-items-center text-white bg-dark border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body" id="toastMessage">Notification message</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5.3 Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- App Scripts -->
+<script src="public/js/app.js"></script>
+<script src="public/js/downloader.js"></script>
+<script src="public/js/playlist.js"></script>
+<script src="public/js/converter.js"></script>
+<script src="public/js/dashboard.js"></script>
+
+<!-- Specialized IDM Desktop Engine UI Controller -->
+<script>
+window.FlowIDM = {
+    currentCategory: 'all',
+    currentStatus: null,
+    searchQuery: '',
+    inspectedMedia: null,
+    refreshInterval: null,
+
+    init() {
+        this.loadQueue();
+        if (this.refreshInterval) clearInterval(this.refreshInterval);
+        this.refreshInterval = setInterval(() => this.loadQueue(true), 3000);
+    },
+
+    async loadQueue(silent = false) {
+        let url = `api/download/queue?category=${this.currentCategory}`;
+        if (this.currentStatus) url += `&status=${this.currentStatus}`;
+        if (this.searchQuery) url += `&q=${encodeURIComponent(this.searchQuery)}`;
+
+        const res = await FlowApp.request(url);
+        if (!res.success) return;
+
+        // Update 5 Metrics
+        document.getElementById('metricTotal').innerText = res.counts.total;
+        document.getElementById('metricCompleted').innerText = res.counts.completed;
+        document.getElementById('metricActive').innerText = res.counts.active;
+        document.getElementById('metricSpeed').innerText = res.counts.current_speed || '0.0 KB/s';
+        document.getElementById('metricTotalData').innerText = res.counts.total_human || '0.0 MB';
+
+        // Update Sidebar Category Counts
+        document.getElementById('catCountAll').innerText = res.counts.total;
+        document.getElementById('catCountVideos').innerText = res.counts.videos;
+        document.getElementById('catCountAudio').innerText = res.counts.audio;
+        document.getElementById('catCountDocs').innerText = res.counts.documents;
+        document.getElementById('catCountPrograms').innerText = res.counts.programs;
+        document.getElementById('catCountCompressed').innerText = res.counts.compressed;
+
+        // Update Sidebar Status Counts
+        document.getElementById('stCountProgress').innerText = res.counts.active;
+        document.getElementById('stCountCompleted').innerText = res.counts.completed;
+        document.getElementById('stCountPaused').innerText = res.counts.paused;
+        document.getElementById('stCountFailed').innerText = res.counts.failed;
+
+        // Update Queue Header
+        document.getElementById('idmViewBadge').innerText = `${res.items.length} items`;
+
+        // Render Table Rows
+        const tbody = document.getElementById('idmTableBody');
+        if (!tbody) return;
+
+        if (res.items.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="text-center py-5 text-muted">
+                        <i class="fa-solid fa-inbox display-6 d-block mb-2 text-muted"></i>
+                        No downloads found in this view. Click <strong>+ Add URL</strong> to start downloading!
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = '';
+        res.items.forEach(item => {
+            const tr = document.createElement('tr');
+
+            // Icon by category
+            let typeIcon = 'fa-film';
+            let typeClass = 'type-video';
+            if (item.category === 'audio') { typeIcon = 'fa-headphones'; typeClass = 'type-audio'; }
+            else if (item.category === 'documents') { typeIcon = 'fa-file-lines'; typeClass = 'type-doc'; }
+            else if (item.category === 'programs') { typeIcon = 'fa-window-restore'; typeClass = 'type-prog'; }
+            else if (item.category === 'compressed') { typeIcon = 'fa-file-zipper'; typeClass = 'type-comp'; }
+
+            // Status badge class
+            let stBadgeClass = 'badge-st-completed';
+            if (item.status_raw === 'in_progress') stBadgeClass = 'badge-st-progress';
+            else if (item.status_raw === 'paused') stBadgeClass = 'badge-st-paused';
+            else if (item.status_raw === 'failed') stBadgeClass = 'badge-st-failed';
+
+            tr.innerHTML = `
+                <td>
+                    <input type="checkbox" class="form-check-input idm-item-check" value="${item.id}">
+                </td>
+                <td>
+                    <div class="idm-type-icon ${typeClass}">
+                        <i class="fa-solid ${typeIcon}"></i>
+                    </div>
+                </td>
+                <td>
+                    <div class="idm-file-title text-truncate" style="max-width: 320px;" title="${item.file_name}">${item.file_name}</div>
+                    <div class="idm-file-sub">${item.category_label}</div>
+                </td>
+                <td class="fw-bold">${item.size_human}</td>
+                <td>
+                    <div class="idm-tbl-progress-wrap">
+                        <div class="idm-tbl-progress">
+                            <div class="idm-tbl-progress-bar" style="width: ${item.progress}%"></div>
+                        </div>
+                        <div class="idm-tbl-progress-text">
+                            <span>${item.progress}%</span>
+                            <span>${item.size_human}</span>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="idm-badge-status ${stBadgeClass}">${item.status}</span>
+                </td>
+                <td class="text-muted small">${item.speed !== '-' ? item.speed : '-'}</td>
+                <td style="text-align: right;">
+                    <div class="idm-tbl-actions">
+                        ${item.status_raw === 'completed' 
+                            ? `<a href="${item.download_url}" class="idm-btn-action" title="Save File Locally" download><i class="fa-solid fa-arrow-up-right-from-square"></i></a>` 
+                            : `<button type="button" class="idm-btn-action" title="Inspect Progress" onclick="FlowDownloader.openIdmModal('${item.job_uuid}', '${item.media_title}', '${item.format.toLowerCase()}')"><i class="fa-solid fa-eye"></i></button>`}
+                        <button type="button" class="idm-btn-action" title="Folder: ${item.folder_name}" onclick="FlowApp.notify('Saved in: ${item.folder_name}', 'info')"><i class="fa-solid fa-folder"></i></button>
+                        <button type="button" class="idm-btn-action btn-del" title="Delete" onclick="FlowIDM.deleteItem(${item.id})"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    },
+
+    filterCategory(cat) {
+        this.currentCategory = cat;
+        document.querySelectorAll('.idm-sidebar .idm-nav-item').forEach(el => el.classList.remove('active'));
+        const activeNav = document.getElementById('catItem' + cat.charAt(0).toUpperCase() + cat.slice(1)) || document.getElementById('catItemAll');
+        if (activeNav) activeNav.classList.add('active');
+
+        const titleMap = {
+            all: 'All Downloads',
+            videos: 'Videos',
+            audio: 'Music & Audio',
+            documents: 'Documents',
+            programs: 'Programs (.exe)',
+            compressed: 'Compressed'
+        };
+        document.getElementById('idmViewTitle').innerText = titleMap[cat] || 'Downloads';
+        this.loadQueue();
+    },
+
+    filterStatus(st) {
+        this.currentStatus = st;
+        document.querySelectorAll('.idm-sidebar .idm-nav-item').forEach(el => el.classList.remove('active'));
+        const map = { in_progress: 'stItemProgress', completed: 'stItemCompleted', paused: 'stItemPaused', failed: 'stItemFailed' };
+        if (map[st]) document.getElementById(map[st]).classList.add('active');
+
+        document.getElementById('idmViewTitle').innerText = 'Status: ' + st.replace('_', ' ').toUpperCase();
+        this.loadQueue();
+    },
+
+    handleSearch(val) {
+        this.searchQuery = val.trim();
+        this.loadQueue();
+    },
+
+    toggleSelectAll(master) {
+        document.querySelectorAll('.idm-item-check').forEach(cb => cb.checked = master.checked);
+    },
+
+    async deleteItem(jobId) {
+        if (!confirm('Remove this download?')) return;
+        const res = await FlowApp.request('api/download/delete', {
+            method: 'POST',
+            body: JSON.stringify({ job_id: jobId })
+        });
+        if (res.success) {
+            FlowApp.notify('Download removed.', 'info');
+            this.loadQueue();
+        }
+    },
+
+    async resumeAll() {
+        const res = await FlowApp.request('api/download/bulk-control', {
+            method: 'POST',
+            body: JSON.stringify({ action: 'resume_all' })
+        });
+        FlowApp.notify(res.message || 'All downloads resumed.', 'success');
+        this.loadQueue();
+    },
+
+    async pauseAll() {
+        const res = await FlowApp.request('api/download/bulk-control', {
+            method: 'POST',
+            body: JSON.stringify({ action: 'pause_all' })
+        });
+        FlowApp.notify(res.message || 'All active downloads paused.', 'warning');
+        this.loadQueue();
+    },
+
+    async stopAll() {
+        if (!confirm('Stop all active downloads?')) return;
+        const res = await FlowApp.request('api/download/bulk-control', {
+            method: 'POST',
+            body: JSON.stringify({ action: 'stop_all' })
+        });
+        FlowApp.notify(res.message || 'All downloads stopped.', 'danger');
+        this.loadQueue();
+    },
+
+    async cleanCompleted() {
+        const res = await FlowApp.request('api/download/bulk-control', {
+            method: 'POST',
+            body: JSON.stringify({ action: 'clean_completed' })
+        });
+        FlowApp.notify(res.message || 'Completed downloads cleaned.', 'info');
+        this.loadQueue();
+    },
+
+    openAddUrlModal(typeHint = 'video') {
+        const modal = new bootstrap.Modal(document.getElementById('addUrlModal'));
+        modal.show();
+        setTimeout(() => document.getElementById('modalUrlInput').focus(), 300);
+    },
+
+    openVideoDownloader() {
+        this.openAddUrlModal('video');
+    },
+
+    openExtractAudioModal() {
+        const modal = new bootstrap.Modal(document.getElementById('extractAudioModal'));
+        modal.show();
+    },
+
+    openSettingsModal() {
+        const modal = new bootstrap.Modal(document.getElementById('settingsModal'));
+        modal.show();
+    },
+
+    async analyzeFromModal() {
+        const url = document.getElementById('modalUrlInput').value.trim();
+        if (!url) {
+            FlowApp.notify('Please enter or paste a URL.', 'warning');
+            return;
+        }
+
+        const btn = document.getElementById('modalAnalyzeBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Inspecting...';
+
+        const res = await FlowApp.request('api/media/inspect', {
+            method: 'POST',
+            body: JSON.stringify({ url: url })
+        });
+
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-bolt"></i> Inspect';
+
+        if (!res.success) {
+            FlowApp.notify(res.error || 'Inspection failed.', 'danger');
+            return;
+        }
+
+        this.inspectedMedia = res.media;
+        const panel = document.getElementById('modalInspectorResult');
+        document.getElementById('modalMediaTitle').innerText = res.media.title || 'Media File';
+        document.getElementById('modalMediaMeta').innerText = `Duration: ${res.media.duration || '00:00'} • Source: ${res.media.uploader || 'Web'}`;
+        document.getElementById('modalThumb').src = res.media.thumbnail || 'public/assets/img/direct-video.svg';
+        document.getElementById('modalExtractor').innerText = res.media.extractor || 'Direct Stream';
+
+        const qualSelect = document.getElementById('modalQualitySelect');
+        qualSelect.innerHTML = '';
+
+        if (res.media.video_formats && res.media.video_formats.length > 0) {
+            res.media.video_formats.forEach(vf => {
+                qualSelect.innerHTML += `<option value="${vf.quality}|${vf.ext || 'mp4'}|video">${vf.label || vf.quality} (${vf.filesize_human || 'Direct'})</option>`;
+            });
+        }
+
+        if (res.media.audio_formats && res.media.audio_formats.length > 0) {
+            res.media.audio_formats.forEach(af => {
+                qualSelect.innerHTML += `<option value="${af.bitrate}|${af.format}|audio">${af.label} (${af.filesize_human || 'Audio'})</option>`;
+            });
+        }
+
+        panel.classList.remove('d-none');
+    },
+
+    async startDownloadFromModal() {
+        if (!this.inspectedMedia) return;
+
+        const qualVal = document.getElementById('modalQualitySelect').value;
+        const [quality, format, type] = qualVal.split('|');
+        const folderId = document.getElementById('modalFolderSelect').value || null;
+
+        const res = await FlowApp.request('api/download/start', {
+            method: 'POST',
+            body: JSON.stringify({
+                url: this.inspectedMedia.source_url,
+                type: type,
+                quality: quality,
+                format: format,
+                folder_id: folderId
+            })
+        });
+
+        if (!res.success) {
+            FlowApp.notify(res.error || 'Failed to start download.', 'danger');
+            return;
+        }
+
+        const modalEl = document.getElementById('addUrlModal');
+        bootstrap.Modal.getInstance(modalEl).hide();
+
+        FlowDownloader.openIdmModal(res.job_uuid, this.inspectedMedia.title, format);
+        this.loadQueue();
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    FlowIDM.init();
+});
+</script>
+</body>
+</html>

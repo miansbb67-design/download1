@@ -46,3 +46,4 @@ try {
     echo "[!] Migration Failed: " . $e->getMessage() . "\n";
     exit(1);
 }
+

@@ -116,3 +116,4 @@ $isDarkMode = $currentUser['dark_mode'] ?? false;
         </div>
     </div>
 </div>
+

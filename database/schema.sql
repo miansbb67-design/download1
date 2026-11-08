@@ -263,3 +263,4 @@ CREATE TABLE system_logs (
     INDEX idx_logs_category (category),
     INDEX idx_logs_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+

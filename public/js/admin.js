@@ -203,3 +203,4 @@ window.FlowAdmin = {
 document.addEventListener('DOMContentLoaded', () => {
     FlowAdmin.init();
 });
+

@@ -251,3 +251,4 @@ require __DIR__ . '/layouts/header.php';
 
 <script src="public/js/dashboard.js"></script>
 <?php require __DIR__ . '/layouts/footer.php'; ?>
+

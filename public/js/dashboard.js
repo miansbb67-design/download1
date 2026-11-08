@@ -256,3 +256,4 @@ window.FlowDashboard = {
 document.addEventListener('DOMContentLoaded', () => {
     FlowDashboard.init();
 });
+

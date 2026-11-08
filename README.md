@@ -90,3 +90,4 @@ http://localhost/download1/
 - **SSRF Protection**: Every target URL is validated before DNS resolution. Access to loopback addresses (`127.0.0.1`, `::1`), private subnets (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`), and cloud metadata IP (`169.254.169.254`) is strictly blocked.
 - **Rate Limiting**: Protects media extraction APIs against abuse.
 - **Safe Media Policy**: FlowFetch strictly processes authorized, public domain, royalty-free, or permitted user media. DRM bypass and access restriction evasion are prohibited.
+

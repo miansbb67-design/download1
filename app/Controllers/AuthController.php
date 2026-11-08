@@ -135,3 +135,4 @@ class AuthController
         Response::success([], 'Password updated successfully.');
     }
 }
+

@@ -186,3 +186,4 @@ require __DIR__ . '/layouts/header.php';
 
 <script src="public/js/admin.js"></script>
 <?php require __DIR__ . '/layouts/footer.php'; ?>
+

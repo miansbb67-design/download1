@@ -92,8 +92,11 @@ $router->post('/api/media/inspect', [MediaController::class, 'inspect']);
 
 // Download Engine API
 $router->post('/api/download/start', [DownloadController::class, 'start']);
+$router->get('/api/download/queue', [DownloadController::class, 'queue']);
 $router->get('/api/download/progress/{uuid}', [DownloadController::class, 'progress']);
 $router->post('/api/download/control', [DownloadController::class, 'control']);
+$router->post('/api/download/bulk-control', [DownloadController::class, 'bulkControl']);
+$router->post('/api/download/delete', [DownloadController::class, 'deleteJob']);
 $router->get('/api/download/file/{id}', [DownloadController::class, 'file']);
 $router->get('/api/download/direct/{uuid}', [DownloadController::class, 'directByUuid']);
 
@@ -134,3 +137,4 @@ $router->post('/api/admin/clean-storage', [AdminController::class, 'cleanStorage
 
 // Dispatch
 $router->dispatch($request);
+
