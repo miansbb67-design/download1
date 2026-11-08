@@ -5,13 +5,20 @@ Safe, SSRF-guarded media information extractor powered by yt-dlp & direct stream
 """
 
 import sys
+import io
+import os
 import json
 import argparse
 import socket
 import ipaddress
 import urllib.request
-import os
 from urllib.parse import urlparse
+
+# Ensure Windows console or subprocess piping never crashes on non-ASCII characters
+if hasattr(sys.stdout, 'buffer'):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+if hasattr(sys.stderr, 'buffer'):
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 DEFAULT_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -310,4 +317,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     result = extract_media(args.url, args.playlist_limit)
-    print(json.dumps(result, ensure_ascii=False, indent=2))
+    print(json.dumps(result, ensure_ascii=True, indent=2))

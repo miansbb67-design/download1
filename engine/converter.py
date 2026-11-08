@@ -5,12 +5,19 @@ Direct FFmpeg audio transcoding engine with real-time progress parsing.
 """
 
 import sys
+import io
 import os
 import json
 import argparse
 import subprocess
 import re
 import time
+
+# Ensure Windows subprocess piping handles non-ASCII characters safely
+if hasattr(sys.stdout, 'buffer'):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+if hasattr(sys.stderr, 'buffer'):
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 def parse_time_to_seconds(time_str):
     try:

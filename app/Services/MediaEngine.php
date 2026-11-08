@@ -36,9 +36,15 @@ class MediaEngine
             return ['success' => false, 'error' => $safety['error']];
         }
 
-        // 2. Execute Python Extractor
+        // 2. Execute Python Extractor with UTF-8 encoding
+        putenv("PYTHONIOENCODING=utf-8");
+        putenv("PYTHONUTF8=1");
+
+        $cmdPrefix = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? 'set PYTHONIOENCODING=utf-8&& set PYTHONUTF8=1&& ' : '';
+
         $cmd = sprintf(
-            '%s %s --url %s --playlist-limit %d 2>&1',
+            '%s%s %s --url %s --playlist-limit %d 2>&1',
+            $cmdPrefix,
             escapeshellcmd($this->pythonBin),
             escapeshellarg($this->extractorScript),
             escapeshellarg($url),
@@ -96,8 +102,10 @@ class MediaEngine
         ]));
 
         // 2. Launch background process
+        $cmdPrefix = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? 'set PYTHONIOENCODING=utf-8&& set PYTHONUTF8=1&& ' : '';
         $cmd = sprintf(
-            '%s %s --url %s --type %s --quality %s --format %s --output-dir %s --job-id %s',
+            '%s%s %s --url %s --type %s --quality %s --format %s --output-dir %s --job-id %s',
+            $cmdPrefix,
             escapeshellcmd($this->pythonBin),
             escapeshellarg($this->downloaderScript),
             escapeshellarg($url),

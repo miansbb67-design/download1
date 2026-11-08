@@ -5,6 +5,7 @@ Safe, multi-segment downloader powered by yt-dlp & FFmpeg with real-time status 
 """
 
 import sys
+import io
 import os
 import json
 import argparse
@@ -13,6 +14,12 @@ import socket
 import ipaddress
 import urllib.request
 from urllib.parse import urlparse
+
+# Ensure Windows subprocess piping handles non-ASCII names safely
+if hasattr(sys.stdout, 'buffer'):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+if hasattr(sys.stderr, 'buffer'):
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 DEFAULT_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
